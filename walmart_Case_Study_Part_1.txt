@@ -1,0 +1,214 @@
+1. adding column
+
+(a)Add time_of_day column
+ 
+alter table sales
+add column time_of_day varchar(10)
+
+update sales
+set time_of_day =  
+(
+case
+	when time between '00:00:00' and '12:00:00' then 'MORINIG'
+	when time between '12:01:00' and '16:00:00' then 'AFTERNOON'
+	else 'EVENING'
+end		  );
+
+(b)Add day_name column
+
+alter table sales
+add column day_of_week numeric 
+update sales
+set day_of_week = EXTRACT(DOW FROM your_date_column)
+
+(c)add month_name column
+
+alter table sales
+add column Month_name varchar(10)
+update sales
+set Month_name = to_char(date,'month')
+
+2. How many unique cities does the data have?
+
+select distinct(city)
+from sales
+
+3. In which city is each branch?
+
+select distinct(city),branch
+from sales
+
+4. How many unique product lines does the data have?
+
+select distinct(product_line)
+from sales
+
+5. What is the most selling product line?
+
+select distinct(product_line),sum(quantity) as total_qty
+from sales
+group by product_line
+order by total_qty desc
+
+6. What is the total revenue by month?
+
+select month_name ,sum(total) total_monthly_rev
+from sales
+group by month_name
+order by total_monthly_rev asc
+
+7. What month had the largest COGS?
+
+select month_name ,sum(cogs) total_monthly_cogs
+from sales
+group by month_name 
+order by total_monthly_cogs desc
+
+8. which product line had the largest revenue?
+
+select product_line ,sum(total) total_prod_rev
+from sales
+group by product_line 
+order by total_prod_rev desc
+
+9. name the city with the largest revenue?
+
+select city ,sum(total) total_city_rev
+from sales
+group by city 
+order by total_city_rev desc
+
+10.  Fetch each product line and add a column to those product 
+ line showing "Good", "Bad". Good if its greater than average sales
+
+select sales.*,
+  case
+	  when total > (select avg(total) from sales) then 'good'
+	  else 'bad'
+  end as sales_info
+from sales
+
+11. Which branch sold more products than average product sold?
+
+select sales.*,branch
+from sales
+where quantity > (select avg(quantity) from sales)
+
+12. What is the most common product line by gender?
+
+SELECT
+	gender,
+    product_line,
+    COUNT(gender) AS total_cnt
+FROM sales
+GROUP BY gender, product_line
+ORDER BY total_cnt DESC;
+
+13. What is the average rating of each product line?
+
+select product_line,round(avg(rating)) as avg_product_line
+from sales
+group by product_line
+order by avg_product_line desc
+
+14. Which customer type buys the most?
+
+select customer_type,count(customer_type)
+from sales
+group by customer_type;
+
+15. What is the gender distribution per branch?
+
+select branch,gender,count(gender) as gen_count
+from sales
+group by branch,gender
+order by branch asc
+
+16. Which time of the day do customers give most ratings?
+
+select time_of_day,round(avg(rating),2) as most_rating
+from sales
+group by time_of_day
+order by most_rating desc
+
+17. Which time of the day do customers give most ratings per branch?
+
+select branch,time_of_day,round(avg(rating),2) as most_rating
+from sales
+group by branch,time_of_day
+order by branch asc
+
+18. Which day fo the week has the best avg ratings?
+
+select 
+ day_of_week,round(avg(rating),2) avg_day_rating
+from sales
+group by day_of_week
+order by avg_day_rating desc
+
+19. Which day of the week has the best average ratings per branch?
+
+select branch,day_of_week,round(avg(rating),2) avg_rating_brach
+from sales
+group by branch,day_of_week
+order by branch asc
+
+20. Number of sales made in each time of the day 'Sunday'.
+
+select time_of_day,day_of_week,count(*) Number_of_sales
+from sales 
+where day_of_week = 'sunday'
+group by time_of_day,day_of_week
+
+21. Which of the customer types brings the most revenue?
+
+SELECT
+	customer_type,
+	SUM(total) AS total_revenue
+FROM sales
+GROUP BY customer_type
+ORDER BY total_revenue;
+
+22. Which city has the largest tax/VAT?
+
+SELECT
+	city,
+    ROUND(AVG(tax_pct), 2) AS avg_tax_pct
+FROM sales
+GROUP BY city 
+ORDER BY avg_tax_pct DESC;
+
+23.  Which customer type pays the most in VAT?
+
+SELECT
+	customer_type,
+	sum(tax_pct) AS total_tax
+FROM sales
+GROUP BY customer_type
+ORDER BY total_tax;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
